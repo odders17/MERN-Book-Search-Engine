@@ -73,6 +73,8 @@ git clone https://github.com/odders17/MERN-Book-Search-Engine
 
 Run npm install to install all dependencies. To use the application locally, run npm run develop in your CLI, and a message in the command prompt should tell you the address for your develop app. Alternatively The application is live on Heroku for you to use as well.
 
+https://book-search-odders17.herokuapp.com/
+
 ## Contributing
 
 Paul Aston
