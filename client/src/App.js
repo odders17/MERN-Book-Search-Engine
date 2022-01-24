@@ -1,44 +1,51 @@
 import React from 'react';
 import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
-import SearchBooks from './pages/SearchBooks';
-import SavedBooks from './pages/SavedBooks';
-import Navbar from './components/Navbar';
-// add these two library import statements
-import { ApolloProvider } from '@apollo/react-hooks';
-import ApolloClient from 'apollo-boost';
+import {
+  ApolloProvider,
+  ApolloLink,
+  ApolloClient,
+  HttpLink,
+  InMemoryCache,
+  concat,
+} from "@apollo/client";
 
-const client = new ApolloClient({
-  // uri: 'http://localhost:3001/graphql'
-  request: operation => {
-    const token = localStorage.getItem('id_token');
-
-    operation.setContext({
-      headers: {
-        authorization: token ? `Bearer ${token}` : ''
-      }
-    })
-  },
-  uri: '/graphql'
-});
-
-
+import Auth from "./utils/auth";
+import SearchBooks from "./pages/SearchBooks";
+import SavedBooks from "./pages/SavedBooks";
+import Navbar from "./components/Navbar";
 
 function App() {
+  const httpLink = new HttpLink({ uri: "/graphql" });
+  const authMiddleware = new ApolloLink((operation, forward) => {
+    // add the authorization to the headers
+    operation.setContext(({ headers = {} }) => ({
+      headers: {
+        ...headers,
+        authorization: Auth.loggedIn() ? Auth.getToken() : null,
+      },
+    }));
+
+    return forward(operation);
+  });
+
+  const client = new ApolloClient({
+    cache: new InMemoryCache(),
+    link: concat(authMiddleware, httpLink),
+  });
+
   return (
     <ApolloProvider client={client}>
-        <Router>
-          <>
+      <Router>
+        <>
           <Navbar />
           <Switch>
-            <Route exact path='/' component={SearchBooks} />
-            <Route exact path='/saved' component={SavedBooks} />
-            <Route render={() => <h1 className='display-2'>Wrong page!</h1>} />
+            <Route exact path="/" component={SearchBooks} />
+            <Route exact path="/saved" component={SavedBooks} />
+            <Route render={() => <h1 className="display-2">Wrong page!</h1>} />
           </Switch>
-          </>
-        </Router> 
+        </>
+      </Router>
     </ApolloProvider>
-
   );
 }
-
 export default App;
