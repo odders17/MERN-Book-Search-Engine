@@ -11,7 +11,7 @@ const resolvers = {
                     _id: user._id
                 });
             }
-            throw new AuthenticationError("Please log in");
+            throw new AuthenticationError("Authorisation required");
         },
     },
 
